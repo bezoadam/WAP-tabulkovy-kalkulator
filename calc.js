@@ -29,16 +29,18 @@ function deselect_cells() {
         all[i].style.borderWidth = '1px';   
         all[i].style.borderColor = 'black';
         all[i].id = '';
+        all[i].removeAttribute('contenteditable');
     }
 }
 
 function inputClickHandler(e) {
-    deselect_cells()
+    deselect_cells();
     e = e || window.event;
     var tdElm = e.target||e.srcElement;
     tdElm.style.borderWidth = '2px';   
     tdElm.style.borderColor = 'blue';
     tdElm.id = 'selected';
+    tdElm.setAttribute('contenteditable', 'true')
     if(tdElm.style.backgroundColor == 'rgb(255, 0, 0)') {
         tdElm.style.backgroundColor = '#fff';
     } else {
@@ -52,19 +54,20 @@ function checkKey(e) {
 
     switch (e.keyCode) {
         case 38:
-            index = getNextTableCellIndex('up')
+            index = getNextTableCellIndex('up');
             break;
         case 40:
-            index = getNextTableCellIndex('down')
+            index = getNextTableCellIndex('down');
             break;
         case 37:
-            index = getNextTableCellIndex('left')
+            index = getNextTableCellIndex('left');
             break;
         case 39:
-            index = getNextTableCellIndex('right')
+            index = getNextTableCellIndex('right');
             break;
         default:
-            console.log('err')
+            console.log('err');
+            return;
     }
 
     selectNextTableCell(index)
@@ -80,7 +83,9 @@ function selectNextTableCell(index) {
     deselect_cells();
     tdElm.style.borderWidth = '2px';   
     tdElm.style.borderColor = 'blue';
-    tdElm.id = 'selected';    
+    tdElm.id = 'selected';
+    tdElm.setAttribute('contenteditable', 'true');
+    tdElm.focus();
 }
 
 function getNextTableCellIndex(arrow) {
