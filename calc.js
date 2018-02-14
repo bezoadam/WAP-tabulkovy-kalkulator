@@ -1,8 +1,6 @@
 function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         tbl  = document.createElement('table');
-    tbl.style.width  = '100px';
-    tbl.style.border = '1px solid black';
     tbl.id = tableId;
 
     for(var i = 0; i < rowCount; i++){
@@ -10,7 +8,6 @@ function tableCreate(rowCount, colCount, tableId){
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
             td.appendChild(document.createTextNode('Cell'));
-            td.style.border = '1px solid black';
         }
     }
     body.appendChild(tbl);
@@ -26,8 +23,6 @@ function highlight_cells() {
 function deselect_cells() {
     var all = document.getElementsByTagName("td");
     for (var i=0;i<all.length;i++) {
-        all[i].style.borderWidth = '1px';   
-        all[i].style.borderColor = 'black';
         all[i].id = '';
         all[i].removeAttribute('contenteditable');
     }
@@ -37,10 +32,8 @@ function inputClickHandler(e) {
     deselect_cells();
     e = e || window.event;
     var tdElm = e.target||e.srcElement;
-    tdElm.style.borderWidth = '2px';   
-    tdElm.style.borderColor = 'blue';
     tdElm.id = 'selected';
-    tdElm.setAttribute('contenteditable', 'true')
+    tdElm.setAttribute('contenteditable', 'true');
     if(tdElm.style.backgroundColor == 'rgb(255, 0, 0)') {
         tdElm.style.backgroundColor = '#fff';
     } else {
@@ -75,14 +68,18 @@ function checkKey(e) {
 
 function selectNextTableCell(index) {
     var table = document.getElementById('table');
-    var tdElm = table.rows[index[0]].cells[index[1]];
+    try {
+        var tdElm = table.rows[index[0]].cells[index[1]];
+    } catch(e) {
+        //TODO handle exception
+        console.log(e.name);
+        return;
+    }
     if (tdElm == null) {
         console.log('out of table');
         return;
     }
     deselect_cells();
-    tdElm.style.borderWidth = '2px';   
-    tdElm.style.borderColor = 'blue';
     tdElm.id = 'selected';
     tdElm.setAttribute('contenteditable', 'true');
     tdElm.focus();
