@@ -16,7 +16,6 @@ function tableCreate(rowCount, colCount, tableId){
 function highlightCells() {
     var all = document.getElementsByTagName("td");
     for (var i=0;i<all.length;i++) {
-        all[i].onclick = inputClickHandler;
         all[i].ondblclick = inputDoubleClickHandler;
     }
 }
@@ -39,10 +38,10 @@ function inputDoubleClickHandler(e) {
     }    
 }
 
-function inputClickHandler(e) {
+function inputClickHandler(index) {
     deselectCells();
-    e = e || window.event;
-    var tdElm = e.target||e.srcElement;
+    var table = document.getElementById('table');
+    var tdElm = table.rows[index[0]].cells[index[1]];
     tdElm.id = 'focused';
     tdElm.setAttribute('contenteditable', 'true');
     tdElm.focus();
@@ -133,23 +132,28 @@ function selectingCells() {
         isMouseDown = true;
         startRowIndex = e.target.parentElement.rowIndex;
         startCellIndex = e.target.cellIndex;
-    }, false)
+    })
 
-    table.addEventListener('mouseover', function(e) {
-        // console.log(e.target.parentElement.rowIndex);
-        // console.log(e.target.cellIndex);
-    }, false)
+    table.addEventListener('mousemove', function(e) {
+        if (isMouseDown) {
+            endRowIndex = e.target.parentElement.rowIndex;
+            endCellIndex = e.target.cellIndex;
+            calculateSelection();                    
+        }
+    })
 
     table.addEventListener('mouseup', function(e) {
         if (isMouseDown) {
             endRowIndex = e.target.parentElement.rowIndex;
             endCellIndex = e.target.cellIndex;
-            if (startRowIndex != endRowIndex || startCellIndex != endCellIndex) {
+            if (startRowIndex == endRowIndex && startCellIndex == endCellIndex) {
+                inputClickHandler([startRowIndex, startCellIndex]);
+            } else {
                 calculateSelection();
             }
         }
         isMouseDown = false;
-    }, false)
+    })
 
 
     function calculateSelection() {
@@ -163,14 +167,13 @@ function selectingCells() {
             rowEnd = endRowIndex;
         }
         
-        if (endRowIndex < startCellIndex) {
+        if (endCellIndex < startCellIndex) {
             cellStart = endCellIndex;
             cellEnd = startCellIndex;
         } else {
             cellStart = startCellIndex;
             cellEnd = endCellIndex;
-        }        
-
+        }  
         for (var i = rowStart; i <= rowEnd; i++) {
             for (var j = cellStart; j <= cellEnd; j++) {
                 var tdElm = table.rows[i].cells[j];
