@@ -1,0 +1,15 @@
+table {
+    border-collapse: collapse;
+}
+
+table td {
+    border: 1px solid black;
+    width: 80px;
+    height: 40px;
+    margin: 10px;
+}
+
+td#selected {
+	border: 2px solid blue;
+}
+
