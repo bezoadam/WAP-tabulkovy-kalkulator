@@ -41,10 +41,10 @@ function tableCreate(rowCount, colCount, tableId){
     function inputDoubleClickHandler(e) {
         e = e || window.event;
         var tdElm = e.target||e.srcElement;
-        if(tdElm.style.backgroundColor == 'rgb(255, 0, 0)') {
-            tdElm.style.backgroundColor = '#fff';
+        if(tdElm.classList.contains('selectedAndDoubleClicked')) {
+            tdElm.classList.remove('selectedAndDoubleClicked');
         } else {
-            tdElm.style.backgroundColor = '#f00';
+            tdElm.classList.add('selectedAndDoubleClicked');
         }    
     }
 

@@ -16,3 +16,11 @@ td.focused {
 td.selected {
     background-color: green;
 }
+
+td.selectedAndDoubleClicked {
+	background-color: red;
+}
+
+td::selection {
+	background: transparent;
+}
