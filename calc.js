@@ -23,6 +23,13 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    function hideHighlightedCells() {
+        var all = table.getElementsByTagName("td");
+        for (var i=0;i<all.length;i++) {
+            all[i].classList.remove('selected');
+        }        
+    }
+
     function deselectCells() {
         var all = document.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -42,6 +49,7 @@ function tableCreate(rowCount, colCount, tableId){
     }
 
     function inputClickHandler(e) {
+        hideHighlightedCells();
         deselectCells();
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
@@ -124,6 +132,8 @@ function tableCreate(rowCount, colCount, tableId){
         var isMouseDown = false;
         var startRowIndex = null;
         var startCellIndex = null;
+        var lastRowIndex = null;
+        var lastCellIndex = null;
         var endRowIndex = null;
         var endCellIndex = null;
         table.addEventListener('mousedown', function(e) {
@@ -136,7 +146,12 @@ function tableCreate(rowCount, colCount, tableId){
             if (isMouseDown) {
                 endRowIndex = e.target.parentElement.rowIndex;
                 endCellIndex = e.target.cellIndex;
-                calculateSelection();                    
+                if ((startRowIndex != endRowIndex && lastRowIndex != endRowIndex) || (startCellIndex != endCellIndex && lastCellIndex != endCellIndex)) {
+                    lastRowIndex = endRowIndex;
+                    lastCellIndex = endCellIndex;
+                    hideHighlightedCells();
+                    calculateSelection();
+                }
             }
         })
 
@@ -144,8 +159,8 @@ function tableCreate(rowCount, colCount, tableId){
             if (isMouseDown) {
                 endRowIndex = e.target.parentElement.rowIndex;
                 endCellIndex = e.target.cellIndex;
-                if ((startRowIndex != endRowIndex) && (startCellIndex != endCellIndex)) {
-                    calculateSelection();    
+                if ((startRowIndex != endRowIndex) || (startCellIndex != endCellIndex)) {
+                    calculateSelection();
                 }
             }
             isMouseDown = false;
