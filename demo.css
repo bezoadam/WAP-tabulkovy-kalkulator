@@ -9,7 +9,7 @@ table td {
     margin: 10px;
 }
 
-td#focused {
+td.focused {
 	border: 2px solid blue;
 }
 
