@@ -1,3 +1,6 @@
+// Bc. Adam Bezák xbezak01
+// WAP - Tabulkovy kalkulator
+
 function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         table  = document.createElement('table');
@@ -166,7 +169,7 @@ function tableCreate(rowCount, colCount, tableId){
             } else {
                 cellStart = startCellIndex;
                 cellEnd = endCellIndex;
-            }  
+            }
             for (var i = rowStart; i <= rowEnd; i++) {
                 for (var j = cellStart; j <= cellEnd; j++) {
                     var tdElm = table.rows[i].cells[j];
@@ -178,5 +181,5 @@ function tableCreate(rowCount, colCount, tableId){
 
     highlightCells();
     selectingCells();
-    window.onkeydown = checkKey;
+    table.onkeydown = checkKey;
 }
