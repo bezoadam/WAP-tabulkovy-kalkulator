@@ -1,7 +1,7 @@
 function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         table  = document.createElement('table');
-    table.id = tableId;
+    table.classList.add(tableId);
 
     for(var i = 0; i < rowCount; i++){
         var tr = table.insertRow();
@@ -15,6 +15,7 @@ function tableCreate(rowCount, colCount, tableId){
     function highlightCells() {
         var all = document.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
+            all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
         }
     }
@@ -37,9 +38,10 @@ function tableCreate(rowCount, colCount, tableId){
         }    
     }
 
-    function inputClickHandler(index) {
+    function inputClickHandler(e) {
         deselectCells();
-        var tdElm = table.rows[index[0]].cells[index[1]];
+        e = e || window.event;
+        var tdElm = e.target || e.srcElement;
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
         tdElm.focus();
@@ -63,7 +65,6 @@ function tableCreate(rowCount, colCount, tableId){
                 index = getNextTableCellIndex('right');
                 break;
             default:
-                console.log('err');
                 return;
         }
 
@@ -122,7 +123,6 @@ function tableCreate(rowCount, colCount, tableId){
         var startCellIndex = null;
         var endRowIndex = null;
         var endCellIndex = null;
-
         table.addEventListener('mousedown', function(e) {
             isMouseDown = true;
             startRowIndex = e.target.parentElement.rowIndex;
@@ -141,10 +141,8 @@ function tableCreate(rowCount, colCount, tableId){
             if (isMouseDown) {
                 endRowIndex = e.target.parentElement.rowIndex;
                 endCellIndex = e.target.cellIndex;
-                if (startRowIndex == endRowIndex && startCellIndex == endCellIndex) {
-                    inputClickHandler([startRowIndex, startCellIndex]);
-                } else {
-                    calculateSelection();
+                if ((startRowIndex != endRowIndex) && (startCellIndex != endCellIndex)) {
+                    calculateSelection();    
                 }
             }
             isMouseDown = false;
@@ -176,14 +174,9 @@ function tableCreate(rowCount, colCount, tableId){
                 }        
             }
         }
-
-
     }
 
-
-    window.onload = highlightCells;
-    window.onload = selectingCells;
+    highlightCells();
+    selectingCells();
     window.onkeydown = checkKey;
-
-    
 }
