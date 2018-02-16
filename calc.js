@@ -13,14 +13,14 @@ function tableCreate(rowCount, colCount, tableId){
     body.appendChild(tbl);
 }
 
-function highlight_cells() {
+function highlightCells() {
     var all = document.getElementsByTagName("td");
     for (var i=0;i<all.length;i++) {
-        all[i].onclick = inputClickHandler;       
+        // all[i].ondblclick = inputDoubleClickHandler;
     }
 }
 
-function deselect_cells() {
+function deselectCells() {
     var all = document.getElementsByTagName("td");
     for (var i=0;i<all.length;i++) {
         all[i].id = '';
@@ -28,17 +28,23 @@ function deselect_cells() {
     }
 }
 
-function inputClickHandler(e) {
-    deselect_cells();
-    e = e || window.event;
-    var tdElm = e.target||e.srcElement;
-    tdElm.id = 'selected';
-    tdElm.setAttribute('contenteditable', 'true');
+function inputDoubleClickHandler(index) {
+    var table = document.getElementById('table');
+    var tdElm = table.rows[index[0]].cells[index[1]];
     if(tdElm.style.backgroundColor == 'rgb(255, 0, 0)') {
         tdElm.style.backgroundColor = '#fff';
     } else {
         tdElm.style.backgroundColor = '#f00';
-    }
+    }    
+}
+
+function inputClickHandler(index) {
+    deselectCells();
+    var table = document.getElementById('table');
+    var tdElm = table.rows[index[0]].cells[index[1]];
+    tdElm.id = 'focused';
+    tdElm.setAttribute('contenteditable', 'true');
+    tdElm.focus();
 }
 
 function checkKey(e) {
@@ -79,15 +85,15 @@ function selectNextTableCell(index) {
         console.log('out of table');
         return;
     }
-    deselect_cells();
-    tdElm.id = 'selected';
+    deselectCells();
+    tdElm.id = 'focused';
     tdElm.setAttribute('contenteditable', 'true');
     tdElm.focus();
 }
 
 function getNextTableCellIndex(arrow) {
     var table = document.getElementById('table');
-    var tdElm = document.getElementById('selected');
+    var tdElm = document.getElementById('focused');
     var rowIndex = tdElm.closest('tr').rowIndex;
     var colIndex = tdElm.closest('td').cellIndex;
     console.log('row: ' + rowIndex);
@@ -114,5 +120,81 @@ function getNextTableCellIndex(arrow) {
     return index;
 }
 
-window.onload = highlight_cells;
+function selectingCells() {
+    var isMouseDown = false;
+    var startRowIndex = null;
+    var startCellIndex = null;
+    var endRowIndex = null;
+    var endCellIndex = null;
+    var clickCounter = 0;
+
+    var table = document.getElementById('table');
+    table.addEventListener('mousedown', function(e) {
+        isMouseDown = true;
+        startRowIndex = e.target.parentElement.rowIndex;
+        startCellIndex = e.target.cellIndex;
+    })
+
+    table.addEventListener('mousemove', function(e) {
+        if (isMouseDown) {
+            endRowIndex = e.target.parentElement.rowIndex;
+            endCellIndex = e.target.cellIndex;
+            calculateSelection();                    
+        }
+    })
+
+    table.addEventListener('mouseup', function(e) {
+        if (isMouseDown) {
+            endRowIndex = e.target.parentElement.rowIndex;
+            endCellIndex = e.target.cellIndex;
+            if (startRowIndex == endRowIndex && startCellIndex == endCellIndex) {
+                clickCounter++;
+                if (clickCounter === 1) {
+                    singleClickTimer = setTimeout(function() {
+                        clickCounter = 0;
+                        inputClickHandler([startRowIndex, startCellIndex]);
+                    }, 400);
+                } else if (clickCounter === 2) {
+                    clearTimeout(singleClickTimer);
+                    clickCounter = 0;
+                    inputDoubleClickHandler([startRowIndex, startCellIndex]);
+                }
+            } else {
+                calculateSelection();
+            }
+        }
+        isMouseDown = false;
+    })
+
+
+    function calculateSelection() {
+        var rowStart, rowEnd, cellStart, cellEnd;
+        
+        if (endRowIndex < startRowIndex) {
+            rowStart = endRowIndex;
+            rowEnd = startRowIndex;
+        } else {
+            rowStart = startRowIndex;
+            rowEnd = endRowIndex;
+        }
+        
+        if (endCellIndex < startCellIndex) {
+            cellStart = endCellIndex;
+            cellEnd = startCellIndex;
+        } else {
+            cellStart = startCellIndex;
+            cellEnd = endCellIndex;
+        }  
+        for (var i = rowStart; i <= rowEnd; i++) {
+            for (var j = cellStart; j <= cellEnd; j++) {
+                var tdElm = table.rows[i].cells[j];
+                tdElm.classList.add('selected');
+            }        
+        }
+    }
+}
+
+
+window.onload = highlightCells;
+window.onload = selectingCells;
 window.onkeydown = checkKey;
