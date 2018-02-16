@@ -16,7 +16,7 @@ function tableCreate(rowCount, colCount, tableId){
 function highlightCells() {
     var all = document.getElementsByTagName("td");
     for (var i=0;i<all.length;i++) {
-        all[i].ondblclick = inputDoubleClickHandler;
+        // all[i].ondblclick = inputDoubleClickHandler;
     }
 }
 
@@ -28,9 +28,9 @@ function deselectCells() {
     }
 }
 
-function inputDoubleClickHandler(e) {
-    e = e || window.event;
-    var tdElm = e.target||e.srcElement;
+function inputDoubleClickHandler(index) {
+    var table = document.getElementById('table');
+    var tdElm = table.rows[index[0]].cells[index[1]];
     if(tdElm.style.backgroundColor == 'rgb(255, 0, 0)') {
         tdElm.style.backgroundColor = '#fff';
     } else {
@@ -126,6 +126,7 @@ function selectingCells() {
     var startCellIndex = null;
     var endRowIndex = null;
     var endCellIndex = null;
+    var clickCounter = 0;
 
     var table = document.getElementById('table');
     table.addEventListener('mousedown', function(e) {
@@ -147,7 +148,17 @@ function selectingCells() {
             endRowIndex = e.target.parentElement.rowIndex;
             endCellIndex = e.target.cellIndex;
             if (startRowIndex == endRowIndex && startCellIndex == endCellIndex) {
-                inputClickHandler([startRowIndex, startCellIndex]);
+                clickCounter++;
+                if (clickCounter === 1) {
+                    singleClickTimer = setTimeout(function() {
+                        clickCounter = 0;
+                        inputClickHandler([startRowIndex, startCellIndex]);
+                    }, 400);
+                } else if (clickCounter === 2) {
+                    clearTimeout(singleClickTimer);
+                    clickCounter = 0;
+                    inputDoubleClickHandler([startRowIndex, startCellIndex]);
+                }
             } else {
                 calculateSelection();
             }
@@ -181,8 +192,6 @@ function selectingCells() {
             }        
         }
     }
-
-
 }
 
 
