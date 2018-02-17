@@ -13,7 +13,7 @@ function tableCreate(rowCount, colCount, tableId){
             var td = tr.insertCell();
             td.setAttribute("id",  tableId+"_"+i.toString()+"_"+j.toString());
             td.setAttribute("expression", "");
-            td.appendChild(document.createTextNode(''));
+            td.appendChild(document.createTextNode(getRandomInt(0, 10)));
         }
     }
     body.appendChild(table);
@@ -75,6 +75,7 @@ function tableCreate(rowCount, colCount, tableId){
                         tdElm.innerHTML = total.toString(10);
                         continue;
                     }
+
                     n = expr.search("=(AVG|avg)\\([0-9,\\_]*");
                     if (n == 0) {
                         var values = expr.match(/[0-9]*_[0-9]*/g);
@@ -87,12 +88,17 @@ function tableCreate(rowCount, colCount, tableId){
                         tdElm.innerHTML = total.toString(10);
                         continue;;
                     }
+
                     n = expr.search("=[0-9+\\-\\*\\/\\(\\)\\^]*");
                     if (n != 0) {
                         tdElm.innerHTML = "Err";
                     } else {
                         var sub = expr.substr(1, expr.length-1);
-                        var val = eval('(' + sub + ')') || "Err";
+                        try {
+                            var val = eval('(' + sub + ')') || "Err";
+                        } catch(err) {
+                            tdElm.innerHTML = "err";
+                        }
                         tdElm.innerHTML = val;
                     }                    
                 }
@@ -111,15 +117,17 @@ function tableCreate(rowCount, colCount, tableId){
     }
 
     function inputClickHandler(e) {
-        hideHighlightedCells();
-        deselectCells();
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
+        if (tdElm.getAttribute('expression') != "") {
+            if (!(tdElm.classList.contains('focused'))) {
+                tdElm.innerHTML = tdElm.getAttribute('expression');
+            }
+        }
+        hideHighlightedCells();
+        deselectCells();
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
-        if (tdElm.getAttribute('expression') != "") {
-            tdElm.innerHTML = tdElm.getAttribute('expression');
-        }
         tdElm.focus();
     }
 
@@ -286,4 +294,8 @@ function tableCreate(rowCount, colCount, tableId){
     setupHandlers();
     selectingCells();
     table.onkeydown = checkKey;
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

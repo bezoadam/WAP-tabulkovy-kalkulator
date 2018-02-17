@@ -13,16 +13,16 @@ table:focus {
 	outline: none; 
 }
 
-td.focused {
-	border: 2px solid blue;
-}
-
 td.selected {
     background-color: green;
 }
 
 td.selectedAndDoubleClicked {
 	background-color: red;
+}
+
+td:not([expression='']) {
+	background-color: lightblue;
 }
 
 td::selection {
