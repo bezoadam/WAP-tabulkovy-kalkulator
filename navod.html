@@ -1,0 +1,29 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>WAP - Tabulkovy kalkulator - navod</title>
+</head>
+
+<body>
+
+<h1>Vytvorenie tabuľky</h1>
+<p>Tabuľka sa vytvorí volaním funkcie "tableCreate(pocetRiadkov,pocetStlpcov,nazov);". Každá ďalšia tabulka musí obsahovať iný názov, aby nedošlo k vzájomnej 
+interakcie medzi tabuľkami.</p>
+
+<h1>Funkcie tabuľky</h1>
+<ol>
+  <li>Do tabuľky je možné zadávať vstupy pomocou kliknutia na danú bunku a následne je možné posúvať aktuálne editovateľnú bunku pomocou šípiek na klávesnici.</li>
+  <li>Po dvojkliku na tabuľku sa aktuálna bunka označí. Po opatovnom dvojkliku na tu samú bunku sa bunka odznačí.</li>
+  <li>Po kliku a potiahnutím myšou sa označia bunky. Označené bunky je možné vymazať stlačením klávesy 'backspace'. Po kliknutí na tabuľku sa bunky odznačia.</li>
+  <li>Do jednotlivých buniek tabuľky je možné vložiť jednoduché vzorce. Ich syntax je nasledovná:
+    <li>Suma: "=SUM(x1_y1,x2_y2.....)" kde x1 je číslo riadku a y1 číslo stĺpca bunky</li>
+    <li>Priemer: "=AVG(x1_y1,x2_y2.....)" kde x1 je číslo riadku a y1 číslo stĺpca bunky</li>
+    <li>Vzorec: "=1+2"</li>
+    Po kliknutí do bunky, v ktorej sa nachádza vzorec dojde k odobraniu hodnoty a zobrazí sa daný vzorec čo značne zjednoduší jeho editáciu
+  </li>
+  <li>Pokiaľ dôjde k zmene hodnoty v odkazovaných bunkách tak sa tabuľka automaticky prepočíta.</li>
+</ol>
+</body>
+</html>
