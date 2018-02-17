@@ -5,6 +5,7 @@ function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         table  = document.createElement('table');
     table.classList.add(tableId);
+    table.setAttribute("tabindex", 0);
 
     for(var i = 0; i < rowCount; i++){
         var tr = table.insertRow();
@@ -26,15 +27,29 @@ function tableCreate(rowCount, colCount, tableId){
     function hideHighlightedCells() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
-            all[i].classList.remove('selected');
+            if (all[i].classList.contains('selected')) {
+                all[i].classList.remove('selected');               
+            }
         }
+    }
+
+    function deleteAndHideHighlightedCells() {
+        var all = table.getElementsByTagName("td");
+        for (var i=0;i<all.length;i++) {
+            if (all[i].classList.contains('selected')) {
+                all[i].innerHTML = "";
+                all[i].classList.remove('selected');               
+            }
+        }        
     }
 
     function deselectCells() {
         var all = document.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
-            all[i].classList.remove('focused');
-            all[i].removeAttribute('contenteditable');
+            if (all[i].classList.contains('focused')) {
+                all[i].classList.remove('focused');
+                all[i].removeAttribute('contenteditable');
+            }
         }
     }
 
@@ -164,6 +179,12 @@ function tableCreate(rowCount, colCount, tableId){
                 }
             }
             isMouseDown = false;
+        })
+
+        table.addEventListener('keydown', function(e) {
+            if (e.keyCode == 8) {
+                deleteAndHideHighlightedCells();
+            }
         })
 
         function calculateSelection() {
