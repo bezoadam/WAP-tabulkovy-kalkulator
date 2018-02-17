@@ -9,10 +9,18 @@ table td {
     margin: 10px;
 }
 
-td#focused {
+td.focused {
 	border: 2px solid blue;
 }
 
 td.selected {
     background-color: green;
+}
+
+td.selectedAndDoubleClicked {
+	background-color: red;
+}
+
+td::selection {
+	background: transparent;
 }
