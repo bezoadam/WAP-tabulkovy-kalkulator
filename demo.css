@@ -1,28 +1,29 @@
+/* Adam Bezák xbezak01 */
 table {
     border-collapse: collapse;
 }
 
 table td {
-    border: 1px solid black;
-    width: 80px;
-    height: 40px;
+    border: 1px solid black; /* Nastavenie sirky, druhu a farby okraju. */
+    width: 80px; /* Defaultna sirka bunky v tabulke. */
+    height: 40px; /* Defaultna vyska bunky v tabulke. */
     margin: 10px;
 }
 
 table:focus { 
-	outline: none; 
+	outline: none;
 }
 
 td.selected {
-    background-color: green;
+    background-color: green; /* Nastavenie farby pri vybere policiek mysou. */
 }
 
 td.selectedAndDoubleClicked {
-	background-color: red;
+	background-color: red; /* Nastavenie farby pre doubleclick na bunku v tabulke */
 }
 
 td:not([expression='']) {
-	background-color: lightblue;
+	background-color: lightblue; /* Nastavenie farby ak bunka obsahuje matematicky vyraz */
 }
 
 td::selection {
