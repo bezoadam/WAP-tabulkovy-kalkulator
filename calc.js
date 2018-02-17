@@ -11,16 +11,17 @@ function tableCreate(rowCount, colCount, tableId){
         var tr = table.insertRow();
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
-            td.appendChild(document.createTextNode('Cell'));
+            td.appendChild(document.createTextNode(''));
         }
     }
     body.appendChild(table);
 
-    function highlightCells() {
-        var all = document.getElementsByTagName("td");
+    function setupHandlers() {
+        var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
             all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
+            all[i].onfocusout = inputTextHandler;
         }
     }
 
@@ -44,11 +45,22 @@ function tableCreate(rowCount, colCount, tableId){
     }
 
     function deselectCells() {
-        var all = document.getElementsByTagName("td");
+        var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('focused')) {
                 all[i].classList.remove('focused');
                 all[i].removeAttribute('contenteditable');
+            }
+        }
+    }
+
+    function recomputeTable() {
+        var all = table.getElementsByTagName("td");
+        for (var i=0;i<all.length;i++) {
+            var tdElm = all[i];
+            if (tdElm.hasAttribute('expression')) {
+                var expr = tdElm.getAttribute("expression");
+                console.log(expr)
             }
         }
     }
@@ -60,7 +72,7 @@ function tableCreate(rowCount, colCount, tableId){
             tdElm.classList.remove('selectedAndDoubleClicked');
         } else {
             tdElm.classList.add('selectedAndDoubleClicked');
-        }    
+        }
     }
 
     function inputClickHandler(e) {
@@ -71,6 +83,22 @@ function tableCreate(rowCount, colCount, tableId){
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
         tdElm.focus();
+    }
+
+    function inputTextHandler(e) {
+        e = e || window.event;
+        var tdElm = e.target || e.srcElement;
+        var value = tdElm.innerHTML;
+
+        if (value.length > 0) {
+            if (value.charAt(0) == '=') {
+                tdElm.setAttribute('expression', value)
+            } else {
+                tdElm.setAttribute('expression', "")
+            }
+        }
+
+        recomputeTable();
     }
 
     function checkKey(e) {
@@ -119,8 +147,6 @@ function tableCreate(rowCount, colCount, tableId){
         var tdElm = table.getElementsByClassName('focused')[0];
         var rowIndex = tdElm.closest('tr').rowIndex;
         var colIndex = tdElm.closest('td').cellIndex;
-        console.log('row: ' + rowIndex);
-        console.log('col: ' + colIndex);
         var index = [];
 
         switch (arrow) {
@@ -214,7 +240,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
-    highlightCells();
+    setupHandlers();
     selectingCells();
     table.onkeydown = checkKey;
 }
