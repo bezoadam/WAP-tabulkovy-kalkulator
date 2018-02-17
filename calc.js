@@ -25,8 +25,20 @@ function tableCreate(rowCount, colCount, tableId){
         for (var i=0;i<all.length;i++) {
             all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
-            all[i].onfocusout = inputFocusOutHandler;
         }
+    }
+
+    // Nastavenie listenerov na tabulku
+    function setupListeners() {
+        table.addEventListener('keydown', function(e) {
+            if (e.keyCode == 8) {
+                deleteAndHideHighlightedCells();
+            }
+        })
+
+        table.addEventListener('focusout', function(e) {
+            inputFocusOutHandler(e);
+        })
     }
 
     // Skrytie oznacenych buniek mysou
@@ -75,9 +87,14 @@ function tableCreate(rowCount, colCount, tableId){
                     if (n == 0) {
                         var values = expr.match(/[0-9]*_[0-9]*/g);
                         var total = 0;
-                        for (var x = 0; x < values.length; x++) { 
-                            var val = document.getElementById(tableId+"_"+values[x]);
-                            total = total + parseInt(val.innerHTML,10);
+                        try {
+                            for (var x = 0; x < values.length; x++) { 
+                                var val = document.getElementById(tableId+"_"+values[x]);
+                                total = total + parseInt(val.innerHTML,10);
+                            }       
+                        } catch(err) {
+                            tdElm.innerHTML = "err";
+                            return                           
                         }
                         tdElm.innerHTML = total.toString(10);
                         continue;
@@ -88,9 +105,14 @@ function tableCreate(rowCount, colCount, tableId){
                     if (n == 0) {
                         var values = expr.match(/[0-9]*_[0-9]*/g);
                         var total = 0;
-                        for (var x = 0; x < values.length; x++) {
-                            var val = document.getElementById(tableId+"_"+values[x]);
-                            total = total + parseInt(val.innerHTML,10);
+                        try {
+                            for (var x = 0; x < values.length; x++) {
+                                var val = document.getElementById(tableId+"_"+values[x]);
+                                total = total + parseInt(val.innerHTML,10);
+                            }                
+                        } catch(err) {
+                            tdElm.innerHTML = "err";
+                            return
                         }
                         total = total / values.length;
                         tdElm.innerHTML = total.toString(10);
@@ -107,6 +129,7 @@ function tableCreate(rowCount, colCount, tableId){
                             var val = eval('(' + sub + ')') || "Err";
                         } catch(err) {
                             tdElm.innerHTML = "err";
+                            return;
                         }
                         tdElm.innerHTML = val;
                     }                    
@@ -130,13 +153,17 @@ function tableCreate(rowCount, colCount, tableId){
     function inputClickHandler(e) {
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
-        if (tdElm.getAttribute('expression') != "") {
-            if (!(tdElm.classList.contains('focused'))) {
-                tdElm.innerHTML = tdElm.getAttribute('expression');
-            }
-        }
         hideHighlightedCells();
         deselectCells();
+        if (tdElm.getAttribute('expression') != "") {
+            tdElm.innerHTML = tdElm.getAttribute('expression');
+            tdElm.setAttribute('contenteditable', 'true');
+            tdElm.classList.add('focused');
+            console.log(tdElm.innerHTML);
+            tdElm.focus();
+            console.log(tdElm.innerHTML);
+            return;
+        }
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
         tdElm.focus();
@@ -180,7 +207,6 @@ function tableCreate(rowCount, colCount, tableId){
             default:
                 return;
         }
-
         selectNextTableCell(index)
     }
 
@@ -274,12 +300,6 @@ function tableCreate(rowCount, colCount, tableId){
             isMouseDown = false;
         })
 
-        table.addEventListener('keydown', function(e) {
-            if (e.keyCode == 8) {
-                deleteAndHideHighlightedCells();
-            }
-        })
-
         // Na zaklade pociatocneho a koncoveho indexu vyznacim bunky
         function calculateSelection() {
             var rowStart, rowEnd, cellStart, cellEnd;
@@ -309,6 +329,7 @@ function tableCreate(rowCount, colCount, tableId){
     }
 
     setupHandlers();
+    setupListeners();
     selectingCells();
     table.onkeydown = checkKey;
 }
