@@ -11,6 +11,8 @@ function tableCreate(rowCount, colCount, tableId){
         var tr = table.insertRow();
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
+            td.setAttribute("id",  tableId+"_"+i.toString()+"_"+j.toString());
+            td.setAttribute("expression", "");
             td.appendChild(document.createTextNode(''));
         }
     }
@@ -21,7 +23,7 @@ function tableCreate(rowCount, colCount, tableId){
         for (var i=0;i<all.length;i++) {
             all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
-            all[i].onfocusout = inputTextHandler;
+            all[i].onfocusout = inputFocusOutHandler;
         }
     }
 
@@ -39,6 +41,7 @@ function tableCreate(rowCount, colCount, tableId){
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('selected')) {
                 all[i].innerHTML = "";
+                all[i].setAttribute("expression", "");
                 all[i].classList.remove('selected');               
             }
         }        
@@ -60,7 +63,39 @@ function tableCreate(rowCount, colCount, tableId){
             var tdElm = all[i];
             if (tdElm.hasAttribute('expression')) {
                 var expr = tdElm.getAttribute("expression");
-                console.log(expr)
+                if (expr != "") {
+                    var n = expr.search("=(sum|SUM)\\([0-9,\\_]*");
+                    if (n == 0) {
+                        var values = expr.match(/[0-9]*_[0-9]*/g);
+                        var total = 0;
+                        for (var x = 0; x < values.length; x++) { 
+                            var val = document.getElementById(tableId+"_"+values[x]);
+                            total = total + parseInt(val.innerHTML,10);
+                        }
+                        tdElm.innerHTML = total.toString(10);
+                        continue;
+                    }
+                    n = expr.search("=(AVG|avg)\\([0-9,\\_]*");
+                    if (n == 0) {
+                        var values = expr.match(/[0-9]*_[0-9]*/g);
+                        var total = 0;
+                        for (var x = 0; x < values.length; x++) {
+                            var val = document.getElementById(tableId+"_"+values[x]);
+                            total = total + parseInt(val.innerHTML,10);
+                        }
+                        total = total / values.length;
+                        tdElm.innerHTML = total.toString(10);
+                        continue;;
+                    }
+                    n = expr.search("=[0-9+\\-\\*\\/\\(\\)\\^]*");
+                    if (n != 0) {
+                        tdElm.innerHTML = "Err";
+                    } else {
+                        var sub = expr.substr(1, expr.length-1);
+                        var val = eval('(' + sub + ')') || "Err";
+                        tdElm.innerHTML = val;
+                    }                    
+                }
             }
         }
     }
@@ -82,19 +117,22 @@ function tableCreate(rowCount, colCount, tableId){
         var tdElm = e.target || e.srcElement;
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
+        if (tdElm.getAttribute('expression') != "") {
+            tdElm.innerHTML = tdElm.getAttribute('expression');
+        }
         tdElm.focus();
     }
 
-    function inputTextHandler(e) {
+    function inputFocusOutHandler(e) {
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
         var value = tdElm.innerHTML;
 
         if (value.length > 0) {
             if (value.charAt(0) == '=') {
-                tdElm.setAttribute('expression', value)
+                tdElm.setAttribute('expression', value);
             } else {
-                tdElm.setAttribute('expression', "")
+                tdElm.setAttribute('expression', "");
             }
         }
 
@@ -140,6 +178,11 @@ function tableCreate(rowCount, colCount, tableId){
         deselectCells();
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
+        //FIXME not working
+        if (tdElm.getAttribute('expression') != "") {
+            var expression = tdElm.getAttribute('expression');
+            tdElm.innerHTML = expression;
+        }
         tdElm.focus();
     }
 
