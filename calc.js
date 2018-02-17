@@ -27,7 +27,7 @@ function tableCreate(rowCount, colCount, tableId){
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
             all[i].classList.remove('selected');
-        }        
+        }
     }
 
     function deselectCells() {
@@ -165,7 +165,6 @@ function tableCreate(rowCount, colCount, tableId){
             }
             isMouseDown = false;
         })
-
 
         function calculateSelection() {
             var rowStart, rowEnd, cellStart, cellEnd;
