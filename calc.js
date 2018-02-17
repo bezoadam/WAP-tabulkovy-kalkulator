@@ -1,6 +1,7 @@
 // Bc. Adam Bezák xbezak01
 // WAP - Tabulkovy kalkulator
 
+// Vytvorenie tabulky
 function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         table  = document.createElement('table');
@@ -18,6 +19,7 @@ function tableCreate(rowCount, colCount, tableId){
     }
     body.appendChild(table);
 
+    // Nastavenie handlerov na elementy tabulky
     function setupHandlers() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -27,6 +29,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    // Skrytie oznacenych buniek mysou
     function hideHighlightedCells() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -36,6 +39,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    // Skrytie a vymazanie hodnot oznacenych buniek
     function deleteAndHideHighlightedCells() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -47,6 +51,7 @@ function tableCreate(rowCount, colCount, tableId){
         }        
     }
 
+    // Odznacenie aktualnej focusnutej bunky
     function deselectCells() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -57,6 +62,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    // Prepocitanie tabulky
     function recomputeTable() {
         var all = table.getElementsByTagName("td");
         for (var i=0;i<all.length;i++) {
@@ -64,6 +70,7 @@ function tableCreate(rowCount, colCount, tableId){
             if (tdElm.hasAttribute('expression')) {
                 var expr = tdElm.getAttribute("expression");
                 if (expr != "") {
+                    //SUM
                     var n = expr.search("=(sum|SUM)\\([0-9,\\_]*");
                     if (n == 0) {
                         var values = expr.match(/[0-9]*_[0-9]*/g);
@@ -76,6 +83,7 @@ function tableCreate(rowCount, colCount, tableId){
                         continue;
                     }
 
+                    //AVG
                     n = expr.search("=(AVG|avg)\\([0-9,\\_]*");
                     if (n == 0) {
                         var values = expr.match(/[0-9]*_[0-9]*/g);
@@ -89,6 +97,7 @@ function tableCreate(rowCount, colCount, tableId){
                         continue;;
                     }
 
+                    //Vyraz
                     n = expr.search("=[0-9+\\-\\*\\/\\(\\)\\^]*");
                     if (n != 0) {
                         tdElm.innerHTML = "Err";
@@ -106,6 +115,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    // Doubleclick na bunku
     function inputDoubleClickHandler(e) {
         e = e || window.event;
         var tdElm = e.target||e.srcElement;
@@ -116,6 +126,7 @@ function tableCreate(rowCount, colCount, tableId){
         }
     }
 
+    // Click na bunku
     function inputClickHandler(e) {
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
@@ -131,6 +142,7 @@ function tableCreate(rowCount, colCount, tableId){
         tdElm.focus();
     }
 
+    // Ak bunka stratila focus
     function inputFocusOutHandler(e) {
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
@@ -147,6 +159,7 @@ function tableCreate(rowCount, colCount, tableId){
         recomputeTable();
     }
 
+    // Stlacenie klavesnice
     function checkKey(e) {
         e = e || window.event;
         var index = null
@@ -171,6 +184,7 @@ function tableCreate(rowCount, colCount, tableId){
         selectNextTableCell(index)
     }
 
+    // Vybranie dalsej bunky ktora bude focusnuta
     function selectNextTableCell(index) {
         try {
             var tdElm = table.rows[index[0]].cells[index[1]];
@@ -194,6 +208,7 @@ function tableCreate(rowCount, colCount, tableId){
         tdElm.focus();
     }
 
+    // Zistenie dalsieho indexu focusnutej bunky
     function getNextTableCellIndex(arrow) {
         var tdElm = table.getElementsByClassName('focused')[0];
         var rowIndex = tdElm.closest('tr').rowIndex;
@@ -220,6 +235,7 @@ function tableCreate(rowCount, colCount, tableId){
         return index;
     }
 
+    // Oznacenie buniek mysou
     function selectingCells() {
         var isMouseDown = false;
         var startRowIndex = null;
@@ -264,6 +280,7 @@ function tableCreate(rowCount, colCount, tableId){
             }
         })
 
+        // Na zaklade pociatocneho a koncoveho indexu vyznacim bunky
         function calculateSelection() {
             var rowStart, rowEnd, cellStart, cellEnd;
             
@@ -296,6 +313,7 @@ function tableCreate(rowCount, colCount, tableId){
     table.onkeydown = checkKey;
 }
 
+//Generovanie random cisel
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
