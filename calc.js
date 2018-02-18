@@ -163,7 +163,7 @@ function tableCreate(rowCount, colCount, tableId){
         tdElm.setAttribute('contenteditable', 'true');
         tdElm.focus();
         if (tdElm.getAttribute('expression') != "") {
-            tdElm.innerHTML = tdElm.getAttribute('expression'); //expression = '=1'
+            tdElm.innerHTML = tdElm.getAttribute('expression');
             return;
         }
     }
@@ -225,12 +225,12 @@ function tableCreate(rowCount, colCount, tableId){
         deselectCells();
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
+        tdElm.focus();
         //FIXME not working
         if (tdElm.getAttribute('expression') != "") {
             var expression = tdElm.getAttribute('expression');
             tdElm.innerHTML = expression;
         }
-        tdElm.focus();
     }
 
     // Zistenie dalsieho indexu focusnutej bunky
