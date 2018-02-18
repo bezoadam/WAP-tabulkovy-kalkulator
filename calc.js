@@ -60,7 +60,8 @@ function tableCreate(rowCount, colCount, tableId){
                 all[i].setAttribute("expression", "");
                 all[i].classList.remove('selected');               
             }
-        }        
+        }
+        recomputeTable();
     }
 
     // Odznacenie aktualnej focusnutej bunky
@@ -153,20 +154,18 @@ function tableCreate(rowCount, colCount, tableId){
     function inputClickHandler(e) {
         e = e || window.event;
         var tdElm = e.target || e.srcElement;
-        hideHighlightedCells();
-        deselectCells();
-        if (tdElm.getAttribute('expression') != "") {
-            tdElm.innerHTML = tdElm.getAttribute('expression');
-            tdElm.setAttribute('contenteditable', 'true');
-            tdElm.classList.add('focused');
-            console.log(tdElm.innerHTML);
-            tdElm.focus();
-            console.log(tdElm.innerHTML);
+        if (tdElm.classList.contains('focused')) {
             return;
         }
+        hideHighlightedCells();
+        deselectCells();
         tdElm.classList.add('focused');
         tdElm.setAttribute('contenteditable', 'true');
         tdElm.focus();
+        if (tdElm.getAttribute('expression') != "") {
+            tdElm.innerHTML = tdElm.getAttribute('expression'); //expression = '=1'
+            return;
+        }
     }
 
     // Ak bunka stratila focus
