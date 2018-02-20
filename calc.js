@@ -12,16 +12,20 @@ function tableCreate(rowCount, colCount, tableId){
         var tr = table.insertRow();
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
-            td.setAttribute("id",  tableId+"_"+i.toString()+"_"+j.toString());
-            td.setAttribute("expression", "");
-            td.appendChild(document.createTextNode(getRandomInt(0, 10)));
+            var div = document.createElement('div');
+            div.setAttribute("id", tableId+"_"+i.toString()+"_"+j.toString());
+            div.setAttribute("expression", "");
+            div.style.height = '100%';
+            div.className = 'tdDiv';
+            div.innerHTML = getRandomInt(0, 10);
+            td.appendChild(div);
         }
     }
     body.appendChild(table);
 
     // Nastavenie handlerov na elementy tabulky
     function setupHandlers() {
-        var all = table.getElementsByTagName("td");
+        var all = table.getElementsByTagName("div");
         for (var i=0;i<all.length;i++) {
             all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
@@ -43,7 +47,7 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Skrytie oznacenych buniek mysou
     function hideHighlightedCells() {
-        var all = table.getElementsByTagName("td");
+        var all = table.getElementsByTagName("div");
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('selected')) {
                 all[i].classList.remove('selected');               
@@ -53,20 +57,24 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Skrytie a vymazanie hodnot oznacenych buniek
     function deleteAndHideHighlightedCells() {
-        var all = table.getElementsByTagName("td");
+        var all = table.getElementsByTagName("div");
+        var somethingDeleted = false
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('selected')) {
                 all[i].innerHTML = "";
                 all[i].setAttribute("expression", "");
-                all[i].classList.remove('selected');               
+                all[i].classList.remove('selected');
+                somethingDeleted = true            
             }
         }
-        recomputeTable();
+        if (somethingDeleted) {
+            recomputeTable();
+        }
     }
 
     // Odznacenie aktualnej focusnutej bunky
     function deselectCells() {
-        var all = table.getElementsByTagName("td");
+        var all = table.getElementsByTagName("div");
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('focused')) {
                 all[i].classList.remove('focused');
@@ -77,11 +85,11 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Prepocitanie tabulky
     function recomputeTable() {
-        var all = table.getElementsByTagName("td");
+        var all = table.getElementsByTagName("div");
         for (var i=0;i<all.length;i++) {
-            var tdElm = all[i];
-            if (tdElm.hasAttribute('expression')) {
-                var expr = tdElm.getAttribute("expression");
+            var tdDiv = all[i];
+            if (tdDiv.hasAttribute('expression')) {
+                var expr = tdDiv.getAttribute("expression");
                 if (expr != "") {
                     //SUM
                     var n = expr.search("=(sum|SUM)\\([0-9,\\_]*");
@@ -92,12 +100,12 @@ function tableCreate(rowCount, colCount, tableId){
                             for (var x = 0; x < values.length; x++) { 
                                 var val = document.getElementById(tableId+"_"+values[x]);
                                 total = total + parseInt(val.innerHTML,10);
-                            }       
+                            }
                         } catch(err) {
-                            tdElm.innerHTML = "err";
-                            return                           
+                            tdDiv.innerHTML = "err";
+                            continue                           
                         }
-                        tdElm.innerHTML = total.toString(10);
+                        tdDiv.innerHTML = total.toString(10);
                         continue;
                     }
 
@@ -112,27 +120,27 @@ function tableCreate(rowCount, colCount, tableId){
                                 total = total + parseInt(val.innerHTML,10);
                             }                
                         } catch(err) {
-                            tdElm.innerHTML = "err";
-                            return
+                            tdDiv.innerHTML = "err";
+                            continue
                         }
                         total = total / values.length;
-                        tdElm.innerHTML = total.toString(10);
+                        tdDiv.innerHTML = total.toString(10);
                         continue;;
                     }
 
                     //Vyraz
                     n = expr.search("=[0-9+\\-\\*\\/\\(\\)\\^]*");
                     if (n != 0) {
-                        tdElm.innerHTML = "Err";
+                        tdDiv.innerHTML = "Err";
                     } else {
                         var sub = expr.substr(1, expr.length-1);
                         try {
-                            var val = eval('(' + sub + ')') || "Err";
+                            var val = eval(sub) || "Err";
                         } catch(err) {
-                            tdElm.innerHTML = "err";
-                            return;
+                            tdDiv.innerHTML = "err";
+                            continue;
                         }
-                        tdElm.innerHTML = val;
+                        tdDiv.innerHTML = val;
                     }                    
                 }
             }
@@ -142,47 +150,50 @@ function tableCreate(rowCount, colCount, tableId){
     // Doubleclick na bunku
     function inputDoubleClickHandler(e) {
         e = e || window.event;
-        var tdElm = e.target||e.srcElement;
-        if(tdElm.classList.contains('selectedAndDoubleClicked')) {
-            tdElm.classList.remove('selectedAndDoubleClicked');
+        var tdDiv = e.target||e.srcElement;
+        if(tdDiv.classList.contains('selectedAndDoubleClicked')) {
+            tdDiv.classList.remove('selectedAndDoubleClicked');
         } else {
-            tdElm.classList.add('selectedAndDoubleClicked');
+            tdDiv.classList.add('selectedAndDoubleClicked');
         }
     }
 
     // Click na bunku
     function inputClickHandler(e) {
         e = e || window.event;
-        var tdElm = e.target || e.srcElement;
-        if (tdElm.classList.contains('focused')) {
-            return;
-        }
-        hideHighlightedCells();
-        deselectCells();
-        tdElm.classList.add('focused');
-        tdElm.setAttribute('contenteditable', 'true');
-        tdElm.focus();
-        if (tdElm.getAttribute('expression') != "") {
-            tdElm.innerHTML = tdElm.getAttribute('expression');
-            return;
+        var tdDiv = e.target || e.srcElement;
+        if (tdDiv.tagName == 'DIV') {
+            if (tdDiv.classList.contains('focused')) {
+                return;
+            }
+            hideHighlightedCells();
+            deselectCells();
+            tdDiv.classList.add('focused');
+            tdDiv.setAttribute('contenteditable', 'true');
+            tdDiv.focus();
+            if (tdDiv.getAttribute('expression') != "") {
+                tdDiv.innerHTML = tdDiv.getAttribute('expression');
+                return;
+            }
         }
     }
 
     // Ak bunka stratila focus
     function inputFocusOutHandler(e) {
         e = e || window.event;
-        var tdElm = e.target || e.srcElement;
-        var value = tdElm.innerHTML;
-
-        if (value.length > 0) {
-            if (value.charAt(0) == '=') {
-                tdElm.setAttribute('expression', value);
-            } else {
-                tdElm.setAttribute('expression', "");
+        var tdDiv = e.target || e.srcElement;
+        if (tdDiv.tagName == 'DIV') {
+            var value = tdDiv.innerHTML;
+            if (value.length > 0) {
+                if (value.charAt(0) == '=') {
+                    tdDiv.setAttribute('expression', value);
+                } else {
+                    tdDiv.setAttribute('expression', "");
+                }
             }
-        }
 
-        recomputeTable();
+            recomputeTable();        
+        }
     }
 
     // Stlacenie klavesnice
@@ -213,6 +224,7 @@ function tableCreate(rowCount, colCount, tableId){
     function selectNextTableCell(index) {
         try {
             var tdElm = table.rows[index[0]].cells[index[1]];
+            var tdDiv = tdElm.querySelector(".tdDiv");
         } catch(e) {
             //TODO handle exception
             console.log(e.name);
@@ -223,21 +235,21 @@ function tableCreate(rowCount, colCount, tableId){
             return;
         }
         deselectCells();
-        tdElm.classList.add('focused');
-        tdElm.setAttribute('contenteditable', 'true');
-        tdElm.focus();
+        tdDiv.classList.add('focused');
+        tdDiv.setAttribute('contenteditable', 'true');
+        tdDiv.focus();
         //FIXME not working
-        if (tdElm.getAttribute('expression') != "") {
-            var expression = tdElm.getAttribute('expression');
-            tdElm.innerHTML = expression;
+        if (tdDiv.getAttribute('expression') != "") {
+            var expression = tdDiv.getAttribute('expression');
+            tdDiv.innerHTML = expression;
         }
     }
 
     // Zistenie dalsieho indexu focusnutej bunky
     function getNextTableCellIndex(arrow) {
-        var tdElm = table.getElementsByClassName('focused')[0];
-        var rowIndex = tdElm.closest('tr').rowIndex;
-        var colIndex = tdElm.closest('td').cellIndex;
+        var tdDiv = table.getElementsByClassName('focused')[0];
+        var rowIndex = tdDiv.closest('tr').rowIndex;
+        var colIndex = tdDiv.closest('td').cellIndex;
         var index = [];
 
         switch (arrow) {
@@ -271,14 +283,14 @@ function tableCreate(rowCount, colCount, tableId){
         var endCellIndex = null;
         table.addEventListener('mousedown', function(e) {
             isMouseDown = true;
-            startRowIndex = e.target.parentElement.rowIndex;
-            startCellIndex = e.target.cellIndex;
+            startRowIndex = e.target.parentElement.parentElement.rowIndex;
+            startCellIndex = e.target.parentElement.cellIndex;
         })
 
         table.addEventListener('mousemove', function(e) {
             if (isMouseDown) {
-                endRowIndex = e.target.parentElement.rowIndex;
-                endCellIndex = e.target.cellIndex;
+                endRowIndex = e.target.parentElement.parentElement.rowIndex;
+                endCellIndex = e.target.parentElement.cellIndex;
                 if ((startRowIndex != endRowIndex && lastRowIndex != endRowIndex) || (startCellIndex != endCellIndex && lastCellIndex != endCellIndex)) {
                     lastRowIndex = endRowIndex;
                     lastCellIndex = endCellIndex;
@@ -290,8 +302,8 @@ function tableCreate(rowCount, colCount, tableId){
 
         table.addEventListener('mouseup', function(e) {
             if (isMouseDown) {
-                endRowIndex = e.target.parentElement.rowIndex;
-                endCellIndex = e.target.cellIndex;
+                endRowIndex = e.target.parentElement.parentElement.rowIndex;
+                endCellIndex = e.target.parentElement.cellIndex;
                 if ((startRowIndex != endRowIndex) || (startCellIndex != endCellIndex)) {
                     calculateSelection();
                 }
@@ -321,7 +333,8 @@ function tableCreate(rowCount, colCount, tableId){
             for (var i = rowStart; i <= rowEnd; i++) {
                 for (var j = cellStart; j <= cellEnd; j++) {
                     var tdElm = table.rows[i].cells[j];
-                    tdElm.classList.add('selected');
+                    var tdDiv = tdElm.querySelector(".tdDiv");
+                    tdDiv.classList.add('selected');
                 }        
             }
         }

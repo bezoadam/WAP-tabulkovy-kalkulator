@@ -14,18 +14,23 @@ table:focus {
 	outline: none;
 }
 
-td.selected {
+div {
+    white-space:nowrap;
+    overflow:hidden;    
+}
+
+div.selected {
     background-color: green; /* Nastavenie farby pri vybere policiek mysou. */
 }
 
-td.selectedAndDoubleClicked {
+div.selectedAndDoubleClicked {
 	background-color: red; /* Nastavenie farby pre doubleclick na bunku v tabulke */
 }
 
-td:not([expression='']) {
+div:not([expression='']) {
 	background-color: lightblue; /* Nastavenie farby ak bunka obsahuje matematicky vyraz */
 }
 
-td::selection {
+div::selection {
 	background: transparent;
 }
