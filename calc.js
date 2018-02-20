@@ -13,7 +13,7 @@ function tableCreate(rowCount, colCount, tableId){
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
             var div = document.createElement('div');
-            div.setAttribute("id", tableId+"_"+i.toString()+"_"+j.toString());
+            div.setAttribute("id", tableId+"_"+ idOf(i) + j.toString());
             div.setAttribute("expression", "");
             div.style.height = '100%';
             div.className = 'tdDiv';
@@ -91,57 +91,7 @@ function tableCreate(rowCount, colCount, tableId){
             if (tdDiv.hasAttribute('expression')) {
                 var expr = tdDiv.getAttribute("expression");
                 if (expr != "") {
-                    //SUM
-                    var n = expr.search("=(sum|SUM)\\([0-9,\\_]*");
-                    if (n == 0) {
-                        var values = expr.match(/[0-9]*_[0-9]*/g);
-                        var total = 0;
-                        try {
-                            for (var x = 0; x < values.length; x++) { 
-                                var val = document.getElementById(tableId+"_"+values[x]);
-                                total = total + parseInt(val.innerHTML,10);
-                            }
-                        } catch(err) {
-                            tdDiv.innerHTML = "err";
-                            continue                           
-                        }
-                        tdDiv.innerHTML = total.toString(10);
-                        continue;
-                    }
-
-                    //AVG
-                    n = expr.search("=(AVG|avg)\\([0-9,\\_]*");
-                    if (n == 0) {
-                        var values = expr.match(/[0-9]*_[0-9]*/g);
-                        var total = 0;
-                        try {
-                            for (var x = 0; x < values.length; x++) {
-                                var val = document.getElementById(tableId+"_"+values[x]);
-                                total = total + parseInt(val.innerHTML,10);
-                            }                
-                        } catch(err) {
-                            tdDiv.innerHTML = "err";
-                            continue
-                        }
-                        total = total / values.length;
-                        tdDiv.innerHTML = total.toString(10);
-                        continue;;
-                    }
-
-                    //Vyraz
-                    n = expr.search("=[0-9+\\-\\*\\/\\(\\)\\^]*");
-                    if (n != 0) {
-                        tdDiv.innerHTML = "Err";
-                    } else {
-                        var sub = expr.substr(1, expr.length-1);
-                        try {
-                            var val = eval(sub) || "Err";
-                        } catch(err) {
-                            tdDiv.innerHTML = "err";
-                            continue;
-                        }
-                        tdDiv.innerHTML = val;
-                    }                    
+                    tdDiv.innerHTML = computeCell(expr)            
                 }
             }
         }
@@ -338,6 +288,61 @@ function tableCreate(rowCount, colCount, tableId){
                 }        
             }
         }
+    }
+
+    function computeCell(value) {
+      if (!isExpression(value)) {
+        return value
+      }
+      return computeExpression(value)
+    }
+     
+    function computeExpression(expression) {
+        var expressionReplaced = expression.toUpperCase()
+            // Strip all spaces
+            .replace(/\s/g, '')
+         
+            // Strip "=" at beggining of expression
+            .replace(/^\s*=\s*/, '')
+         
+            // Replace cell references with their values
+            .replace(/[A-Z]+\d+/g, function (match) {
+              return getCellValue(match)
+            })
+         
+            // Replace SUM expressions with their results
+            .replace(/SUM\((.*?)\)/g, function (sumExpression, sumExpressionInner) {
+              var sumValues = sumExpressionInner.split(',').map(Number)
+              return sumValues.reduce(function (sum, num) {
+                return sum + num
+              }, 0)
+            })
+         
+            // Replace AVERAGE expressions with their results
+            .replace(/AVERAGE\((.*?)\)/g, function (avgExpression, avgExpressionInner) {
+              var avgValues = avgExpressionInner.split(',').map(Number)
+              return avgValues.reduce(function (avg, num) {
+                return avg + num
+              }, 0) / avgValues.length
+            })
+        console.log(expressionReplaced)
+        return evalMath(expressionReplaced)
+    }
+     
+    function evalMath(expression) {
+        return eval(expression)
+    }
+     
+    function getCellValue(coords) {
+        return document.getElementById(tableId+"_"+coords).innerHTML;
+    }
+     
+    function isExpression(value) {
+        return /^\s*=\s*/.test(value)
+    }
+
+    function idOf(i) {
+        return (i >= 26 ? idOf((i / 26 >> 0) - 1) : '') + 'abcdefghijklmnopqrstuvwxyz'[i % 26 >> 0].toUpperCase();
     }
 
     setupHandlers();
