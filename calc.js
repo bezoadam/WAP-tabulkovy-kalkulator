@@ -176,8 +176,6 @@ function tableCreate(rowCount, colCount, tableId){
             var tdElm = table.rows[index[0]].cells[index[1]];
             var tdDiv = tdElm.querySelector(".tdDiv");
         } catch(e) {
-            //TODO handle exception
-            console.log(e.name);
             return;
         }
         if (tdElm == null) {
@@ -310,6 +308,7 @@ function tableCreate(rowCount, colCount, tableId){
               return getCellValue(match)
             })
          
+            //=sum(a1, a2)
             // Replace SUM expressions with their results
             .replace(/SUM\((.*?)\)/g, function (sumExpression, sumExpressionInner) {
               var sumValues = sumExpressionInner.split(',').map(Number)
@@ -318,6 +317,7 @@ function tableCreate(rowCount, colCount, tableId){
               }, 0)
             })
          
+            //=average(a1,a2)
             // Replace AVERAGE expressions with their results
             .replace(/AVERAGE\((.*?)\)/g, function (avgExpression, avgExpressionInner) {
               var avgValues = avgExpressionInner.split(',').map(Number)
@@ -325,12 +325,18 @@ function tableCreate(rowCount, colCount, tableId){
                 return avg + num
               }, 0) / avgValues.length
             })
-        console.log(expressionReplaced)
+        expressionReplaced = expressionReplaced.replace(/[<]br[^>]*[>]/gi,"");
         return evalMath(expressionReplaced)
     }
      
     function evalMath(expression) {
-        return eval(expression)
+        try {
+            return eval(expression)
+        } catch (e) {
+            if (e instanceof SyntaxError) {
+                return "undefined"
+            }
+        }
     }
      
     function getCellValue(coords) {
