@@ -6,18 +6,18 @@ function tableCreate(rowCount, colCount, tableId){
     var body = document.body,
         table  = document.createElement('table');
     table.classList.add(tableId);
-    table.setAttribute("tabindex", 0);
+    table.setAttribute('tabindex', 0);
 
     for(var i = 0; i < rowCount; i++){
         var tr = table.insertRow();
         for(var j = 0; j < colCount; j++){
             var td = tr.insertCell();
             var div = document.createElement('div');
-            div.setAttribute("id", tableId+"_"+ idOf(i) + j.toString());
-            div.setAttribute("expression", "");
+            div.setAttribute('id', tableId+'_'+ idOf(i) + j.toString());
+            div.setAttribute("expression", '');
             div.style.height = '100%';
             div.className = 'tdDiv';
-            div.innerHTML = getRandomInt(0, 10);
+            // div.innerHTML = getRandomInt(0, 10);
             td.appendChild(div);
         }
     }
@@ -25,7 +25,7 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Nastavenie handlerov na elementy tabulky
     function setupHandlers() {
-        var all = table.getElementsByTagName("div");
+        var all = table.getElementsByTagName('div');
         for (var i=0;i<all.length;i++) {
             all[i].onclick = inputClickHandler;
             all[i].ondblclick = inputDoubleClickHandler;
@@ -47,7 +47,7 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Skrytie oznacenych buniek mysou
     function hideHighlightedCells() {
-        var all = table.getElementsByTagName("div");
+        var all = table.getElementsByTagName('div');
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('selected')) {
                 all[i].classList.remove('selected');               
@@ -57,14 +57,14 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Skrytie a vymazanie hodnot oznacenych buniek
     function deleteAndHideHighlightedCells() {
-        var all = table.getElementsByTagName("div");
+        var all = table.getElementsByTagName('div');
         var somethingDeleted = false
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('selected')) {
-                all[i].innerHTML = "";
-                all[i].setAttribute("expression", "");
+                all[i].innerHTML = '';
+                all[i].setAttribute("expression", '');
                 all[i].classList.remove('selected');
-                somethingDeleted = true            
+                somethingDeleted = true;
             }
         }
         if (somethingDeleted) {
@@ -74,7 +74,7 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Odznacenie aktualnej focusnutej bunky
     function deselectCells() {
-        var all = table.getElementsByTagName("div");
+        var all = table.getElementsByTagName('div');
         for (var i=0;i<all.length;i++) {
             if (all[i].classList.contains('focused')) {
                 all[i].classList.remove('focused');
@@ -85,13 +85,13 @@ function tableCreate(rowCount, colCount, tableId){
 
     // Prepocitanie tabulky
     function recomputeTable() {
-        var all = table.getElementsByTagName("div");
+        var all = table.getElementsByTagName('div');
         for (var i=0;i<all.length;i++) {
             var tdDiv = all[i];
             if (tdDiv.hasAttribute('expression')) {
-                var expr = tdDiv.getAttribute("expression");
+                var expr = tdDiv.getAttribute('expression');
                 if (expr != "") {
-                    tdDiv.innerHTML = computeCell(expr)            
+                    tdDiv.innerHTML = computeCell(expr);       
                 }
             }
         }
@@ -121,7 +121,7 @@ function tableCreate(rowCount, colCount, tableId){
             tdDiv.classList.add('focused');
             tdDiv.setAttribute('contenteditable', 'true');
             tdDiv.focus();
-            if (tdDiv.getAttribute('expression') != "") {
+            if (tdDiv.getAttribute('expression') != '') {
                 tdDiv.innerHTML = tdDiv.getAttribute('expression');
                 return;
             }
@@ -138,10 +138,9 @@ function tableCreate(rowCount, colCount, tableId){
                 if (value.charAt(0) == '=') {
                     tdDiv.setAttribute('expression', value);
                 } else {
-                    tdDiv.setAttribute('expression', "");
+                    tdDiv.setAttribute('expression', '');
                 }
             }
-
             recomputeTable();        
         }
     }
@@ -149,7 +148,7 @@ function tableCreate(rowCount, colCount, tableId){
     // Stlacenie klavesnice
     function checkKey(e) {
         e = e || window.event;
-        var index = null
+        var index = null;
 
         switch (e.keyCode) {
             case 38:
@@ -179,15 +178,13 @@ function tableCreate(rowCount, colCount, tableId){
             return;
         }
         if (tdElm == null) {
-            console.log('out of table');
             return;
         }
         deselectCells();
         tdDiv.classList.add('focused');
         tdDiv.setAttribute('contenteditable', 'true');
         tdDiv.focus();
-        //FIXME not working
-        if (tdDiv.getAttribute('expression') != "") {
+        if (tdDiv.getAttribute('expression') != '') {
             var expression = tdDiv.getAttribute('expression');
             tdDiv.innerHTML = expression;
         }
@@ -281,72 +278,84 @@ function tableCreate(rowCount, colCount, tableId){
             for (var i = rowStart; i <= rowEnd; i++) {
                 for (var j = cellStart; j <= cellEnd; j++) {
                     var tdElm = table.rows[i].cells[j];
-                    var tdDiv = tdElm.querySelector(".tdDiv");
+                    var tdDiv = tdElm.querySelector('.tdDiv');
                     tdDiv.classList.add('selected');
                 }        
             }
         }
     }
 
+    //Pocitanie bunky
     function computeCell(value) {
       if (!isExpression(value)) {
-        return value
+        return value;
       }
-      return computeExpression(value)
+      return computeExpression(value);
     }
      
+    //Ak sa v bunke nachadza vyraz, vypocita sa a vrati sa hodnota
     function computeExpression(expression) {
         var expressionReplaced = expression.toUpperCase()
-            // Strip all spaces
+            //Vymazanie vsetkych medzier
             .replace(/\s/g, '')
          
-            // Strip "=" at beggining of expression
+            //Vymazanie '=' pred vyrazom
             .replace(/^\s*=\s*/, '')
          
-            // Replace cell references with their values
+            //Nahrada odkazov na bunky za ich hodnoty
             .replace(/[A-Z]+\d+/g, function (match) {
-              return getCellValue(match)
+                return getCellValue(match);
             })
          
             //=sum(a1, a2)
-            // Replace SUM expressions with their results
+            //Nahradenie sum vyrazu jeho hodnotou
             .replace(/SUM\((.*?)\)/g, function (sumExpression, sumExpressionInner) {
-              var sumValues = sumExpressionInner.split(',').map(Number)
-              return sumValues.reduce(function (sum, num) {
-                return sum + num
-              }, 0)
+                var sumValues = sumExpressionInner.split(',').map(Number);
+                return sumValues.reduce(function (sum, num) {
+                    return sum + num;
+                }, 0)
             })
          
             //=average(a1,a2)
-            // Replace AVERAGE expressions with their results
+            //Nahradenie priemeru jeho hodnotou
             .replace(/AVERAGE\((.*?)\)/g, function (avgExpression, avgExpressionInner) {
-              var avgValues = avgExpressionInner.split(',').map(Number)
-              return avgValues.reduce(function (avg, num) {
-                return avg + num
-              }, 0) / avgValues.length
+                var avgValues = avgExpressionInner.split(',').map(Number);
+                return avgValues.reduce(function (avg, num) {
+                    return avg + num;
+                }, 0) / avgValues.length;
             })
-        expressionReplaced = expressionReplaced.replace(/[<]br[^>]*[>]/gi,"");
-        return evalMath(expressionReplaced)
+        expressionReplaced = expressionReplaced.replace(/[<]br[^>]*[>]/gi,'');
+        return evalMath(expressionReplaced);
     }
-     
+    
+    //Vyhodnotenie matematicku vyrazu funkciou eval()
     function evalMath(expression) {
         try {
-            return eval(expression)
+            return eval(expression);
         } catch (e) {
             if (e instanceof SyntaxError) {
-                return "undefined"
+                return "undefined";
             }
         }
     }
-     
+    
+    //Pomocna funkcia na zistenie hodnoty bunky
     function getCellValue(coords) {
-        return document.getElementById(tableId+"_"+coords).innerHTML;
-    }
-     
-    function isExpression(value) {
-        return /^\s*=\s*/.test(value)
+        try {
+            return document.getElementById(tableId+"_"+coords).innerHTML;
+        } catch (e) {
+            if (e instanceof TypeError) {
+                return '?'
+            }
+        }
     }
 
+    //Pomocna funkcia na zistenie ci sa jedna o matematicky vyraz
+    function isExpression(value) {
+        return /^\s*=\s*/.test(value);
+    }
+
+    //Pomocna funkcia na zistenie id bunky
     function idOf(i) {
         return (i >= 26 ? idOf((i / 26 >> 0) - 1) : '') + 'abcdefghijklmnopqrstuvwxyz'[i % 26 >> 0].toUpperCase();
     }
@@ -355,9 +364,4 @@ function tableCreate(rowCount, colCount, tableId){
     setupListeners();
     selectingCells();
     table.onkeydown = checkKey;
-}
-
-//Generovanie random cisel
-function getRandomInt(min, max) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }

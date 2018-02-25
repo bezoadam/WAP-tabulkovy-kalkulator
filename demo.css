@@ -27,7 +27,7 @@ div.tdDiv {
     overflow: hidden;
 }
 
-div.tdDov:not([expression='']) {
+div.tdDiv:not([expression='']) {
 	background-color: lightblue; /* Nastavenie farby ak bunka obsahuje matematicky vyraz */
 }
 
