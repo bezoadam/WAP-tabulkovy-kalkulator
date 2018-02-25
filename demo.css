@@ -5,18 +5,10 @@ table {
 
 table td {
     border: 1px solid black; /* Nastavenie sirky, druhu a farby okraju. */
-    width: 80px; /* Defaultna sirka bunky v tabulke. */
-    height: 40px; /* Defaultna vyska bunky v tabulke. */
-    margin: 10px;
 }
 
 table:focus { 
 	outline: none;
-}
-
-div {
-    white-space:nowrap;
-    overflow:hidden;    
 }
 
 div.selected {
@@ -27,10 +19,18 @@ div.selectedAndDoubleClicked {
 	background-color: red; /* Nastavenie farby pre doubleclick na bunku v tabulke */
 }
 
-div:not([expression='']) {
+div.tdDiv {
+    width: 100px; /* Defaultna sirka bunky v tabulke. */
+    min-height: 18px; /* Minimalna vyska bunky */
+    max-width: 100px;
+    white-space: nowrap; 
+    overflow: hidden;
+}
+
+div.tdDiv:not([expression='']) {
 	background-color: lightblue; /* Nastavenie farby ak bunka obsahuje matematicky vyraz */
 }
 
-div::selection {
+div.tdDiv::selection {
 	background: transparent;
 }
